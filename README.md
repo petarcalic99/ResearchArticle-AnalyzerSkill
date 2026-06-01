@@ -8,6 +8,8 @@ A **Claude Code skill** that turns research-paper PDFs into clean 1–2 page sum
 
 For each PDF: `extract.py` pulls clean text + figures with PyMuPDF → a Claude subagent writes the structured summary (and looks up author reputation via the free OpenAlex API) → `render.py` turns that Markdown into styled, self-contained HTML. Each summary has: title, one-line summary, problem→solution intro, a bulleted breakdown, key findings & results, methodology & limitations, and a one-line author note.
 
+When pointed at a folder, every paper is summarized by its **own subagent running in parallel** — so papers never mix into each other's context, and a whole batch finishes in roughly the time a single paper takes.
+
 ## Files
 
 ```
