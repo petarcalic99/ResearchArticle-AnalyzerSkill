@@ -47,3 +47,7 @@ A venv keeps them isolated (Homebrew/Debian Python blocks system-wide `pip`). Th
 
 - The PDFs in `Research_Articles/` and the one-pagers in `Summaries/` are **examples only** — three sample papers and the summaries generated from them. Swap in your own PDFs; each run writes results to `Summaries/<paper>/`.
 - **Cost:** roughly **~$1 per article** with the most performative models (e.g. Claude Opus), and noticeably less with smaller / faster models — most of it is the summarizing subagent reading the full paper.
+
+## Acknowledgements
+
+Thanks to **Nikola Antonijević**, PhD researcher at COSIC (KU Leuven), for his valuable advice and input.
