@@ -1,6 +1,6 @@
 ---
 name: paper-summarizer
-description: Turn one research-article PDF — or a whole folder of them — into a polished 1-2 page summary, output as a minimalistic Markdown file and a beautiful self-contained HTML one-pager. Extracts text + figures with PyMuPDF, launches a subagent to read each paper and write the summary (with an OpenAlex author-reputation lookup), then renders academic-styled HTML. Works in any repository and can batch every PDF in a folder. Use whenever the user wants to summarize / digest / make one-pagers from a paper, a PDF, or a folder of papers.
+description: Turn one research-article PDF — or a whole folder of them — into a polished 1-2 page summary, output as a minimalistic Markdown file and a beautiful self-contained HTML one-pager. Extracts text + figures with PyMuPDF, launches a subagent to read each paper and write the summary (with an OpenAlex author-reputation lookup and a venue-credibility check), then renders academic-styled HTML. Works in any repository and can batch every PDF in a folder. Use whenever the user wants to summarize / digest / make one-pagers from a paper, a PDF, or a folder of papers.
 ---
 
 # Paper Summarizer
@@ -57,6 +57,16 @@ Then run Phases 2–4 for each PDF (this is the batch loop).
 
 ---
 
+## Phase 1.5: Ask the reader's focus (once, before summarizing)
+
+Before launching any subagent, find out what the reader is looking for — this drives an optional **"Why this paper is relevant"** section that ties each paper to their interest.
+- If the user already stated a focus in their request, use that.
+- Otherwise **ask them once** (free text), e.g.: *"What are you looking for in these papers? A broad topic or a specific question lets me add a 'Why this paper is relevant' section to each summary — or say 'skip' for a neutral summary."*
+
+Call the answer `USER_INTEREST` (use `none` if they skip or give nothing). The **same** value is passed to every paper's subagent in the batch.
+
+---
+
 ## Phase 2: Extract (PDF → markdown + figures)
 
 ```bash
@@ -79,13 +89,14 @@ Subagents may be sandboxed (no file writes, no web) in some environments, so use
    - `{{EXTRACTED_MD_PATH}}` → `$WORK/extracted.md`
    - `{{FIGURE_LIST}}` → the list from step 1
    - `{{FIGURES_JSON_PATH}}` → `$WORK/figures.json`
+   - `{{USER_INTEREST}}` → the reader's focus from Phase 1.5 (or `none`)
    - `{{USER_EMAIL}}` → the user's email if known (OpenAlex politeness), else `none`.
 3. **Launch a Task subagent** (`subagent_type: general-purpose`) with the substituted prompt. It **returns the complete summary Markdown as its final message** (it does not write a file).
 4. **You write** that Markdown verbatim to `$OUT/summary.md` — strip any surrounding ``` fences or preamble so the file begins with `# `.
 5. **Complete the author lookup if needed.** If the text contains a marker `[[AUTHOR_LOOKUP_NEEDED: <name> | <affiliation>]]`, do the lookup yourself with WebFetch and rewrite the *About the authors* sentence:
    `https://api.openalex.org/authors?search=<urlenc name>&per_page=5&select=display_name,works_count,cited_by_count,summary_stats,last_known_institutions,affiliations` (append `&mailto=<email>` if known).
    Disambiguate by matching the paper's affiliation; write institution + "≈N published works" + h-index/citations (hedge if uncertain), and delete the marker. If web is unavailable, just delete the marker and keep the paper-grounded sentence.
-6. Verify `summary.md` starts with `# ` and contains `## What they did`, `## Key findings & results`, `## Methodology & limitations`, `## About the authors`. If something's missing, relaunch the subagent once with a corrective note.
+6. Verify `summary.md` starts with `# ` and contains `## What they did`, `## Key findings & results`, `## Methodology & limitations`, `## About the authors`, and `## Publication & credibility` (the `## Why this paper is relevant` section is present only when a focus was given). If something's missing, relaunch the subagent once with a corrective note.
 
 ---
 

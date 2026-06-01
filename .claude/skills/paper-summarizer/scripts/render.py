@@ -83,6 +83,11 @@ def tag_sections(html_out):
     # Key findings list -> styled callout box.
     html_out = re.sub(r"(<h2>\s*Key findings\s*&amp;\s*results\s*</h2>\s*)<ul>",
                       r'\1<ul class="key-points">', html_out, count=1, flags=re.IGNORECASE)
+    # "Why this paper is relevant" -> highlighted callout near the top (reader-specific).
+    html_out = re.sub(
+        r"<h2>\s*Why this paper is relevant\s*</h2>(.*?)(?=<h2|\Z)",
+        lambda m: '<aside class="relevance"><h2>Why this paper is relevant</h2>' + m.group(1) + "</aside>",
+        html_out, count=1, flags=re.IGNORECASE | re.DOTALL)
     # About the authors -> byline card (wraps heading + body up to next h2 / end).
     html_out = re.sub(
         r"<h2>\s*About the authors\s*</h2>(.*?)(?=<h2|\Z)",
