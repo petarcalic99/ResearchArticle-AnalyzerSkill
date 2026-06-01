@@ -1,0 +1,26 @@
+# One Tap to Hijack Them All: A Security Analysis of the Google Fast Pair Protocol
+
+**Summary:** The first comprehensive security analysis of Google's Fast Pair Service reveals that most certified Bluetooth accessories fail to enforce a core pairing-state check, enabling a family of practical attacks ("WhisperPair") that lets a nearby attacker silently hijack audio devices and covertly bind a victim's accessory to the attacker's Google account for persistent location tracking.
+
+## Introduction
+Google's Fast Pair Service (GFPS) adds one-tap Bluetooth setup and account synchronisation, but relies on a fallible application-layer check — that a device must be in explicit "pairing mode" to accept a new host — rather than cryptographic enforcement. The authors show this trust boundary is systemically violated across the ecosystem and propose IntentPair, a lightweight protocol change that cryptographically binds the user's pairing intent into the key derivation.
+
+## What they did
+- Manually analysed the public Fast Pair specification and distilled three security-critical invariants (pairing-state predicate, ownership/account association, user-facing signalling), then operationalised them as three concrete conformance tests: pairing-state predicate enforcement, nonce reuse, and invalid-curve handling.
+- Built an automated test harness on a Raspberry Pi 4 using the BlueZ GATT API, and reverse-engineered the undocumented Google API (24-bit Model ID space) to enumerate certified models and fetch their static Anti-Spoofing public keys, bypassing IP rate-limiting via multiple addresses.
+- Empirically evaluated 25 commercial accessories (earbuds, headphones, speakers) from 16 vendors spanning 17 distinct Bluetooth chipsets from 7 chip manufacturers, retaining compliant devices as negative controls.
+- Designed and implemented WhisperPair, a unified attack family demonstrating forced audio takeover outside pairing mode, microphone access without consent, audio-switch/multipoint manipulation, and covert account binding that enrols the victim's accessory into Google's Find Hub network (Figure 3 illustrates the hijack of a victim's earbuds mid-session).
+- Traced the root cause across the full lifecycle — implementation, validation (Google's Validator App), and certification (third-party labs) — through technical meetings with Google, and proposed/analysed IntentPair as a fix, including game-based security proofs.
+
+## Key findings & results
+- 17 of 25 accessories (68%) fail the pairing-state predicate and can be hijacked while in steady state; on every hijacked device the attacker gained microphone access, a 100% post-hijack success rate.
+- All 4 evaluated models that support Find Hub could be silently bound to the attacker's account for covert tracking, and all 6 devices supporting audio switching were exploitable; flagship devices were not safer (Sony WH-1000XM6 was fully vulnerable while the cheaper HP Poly VFree 60 resisted all attacks, and the most robust devices used Qualcomm chipsets).
+- Time-to-hijack across five trials per device ranged from 6 to 35 seconds (median ~10 s), succeeding at 14 m in the testbed with identical results at shorter ranges; 17 devices (68%) also mishandled nonce validation, while all devices passed the invalid-curve check.
+- In a cross-ecosystem demonstration, an attacker tracked an iPhone user wearing Pixel Buds Pro 2 for roughly 48 hours before any anti-stalking alert fired (Figure 4), with the alert naming the victim's own buds — easily dismissed as a glitch.
+- Google acknowledged the findings, assigned CVE-2025-36911, classified them as critical, and reported patching the Validator and updating certification procedures.
+
+## Methodology & limitations
+The attacks exploit that a non-pairing-mode Provider still keeps its Key-based Pairing GATT characteristic writable; the attacker recovers the Model ID and Anti-Spoofing public key, performs an ECDH exchange on secp256r1 to derive the AES session key, and writes an encrypted pairing request that a non-compliant Provider answers, after which the Bluetooth numeric-comparison passkey is forwarded over BLE and the attacker writes a first account key that (when no Android device has paired) becomes the permanent Owner Account Key for Find Hub. IntentPair instead samples a short-lived intent nonce only while in pairing mode and feeds it (plus a transcript) into an HKDF salt, so key derivation fails-closed without pairing intent or an ownership proof, preserving wire compatibility at negligible cost. The authors are explicit that the three tests are not exhaustive and do not rule out other protocol/implementation weaknesses; they deliberately avoided large-scale opportunistic scanning, tested only owned or consented devices, did not access vendor source code or certification artefacts, could not run Google's restricted Validator App themselves, and note Find Hub support is still uncommon (only 4 of 25 devices).
+
+## About the authors
+The lead author, Sayon Duttagupta, is a researcher at COSIC, KU Leuven (Leuven, Belgium) — an early-career author with a modest but growing record (≈8 published works, ~10 total citations, h-index 2 per OpenAlex), with the work also co-authored by senior KU Leuven cryptographers including Bart Preneel.

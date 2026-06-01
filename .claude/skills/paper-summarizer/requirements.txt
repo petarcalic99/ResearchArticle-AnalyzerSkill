@@ -1,0 +1,4 @@
+# paper-summarizer skill dependencies (Python 3.13, prebuilt wheels — no compiler needed)
+pymupdf4llm==1.27.2.3   # PDF -> clean Markdown (2-column reading order + tables)
+PyMuPDF==1.27.2.3       # fitz: figure-image + caption extraction
+Markdown==3.10.2        # summary.md -> HTML fragment (render.py)

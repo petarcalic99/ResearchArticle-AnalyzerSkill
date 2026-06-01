@@ -1,0 +1,13 @@
+# Python virtual environments (large; recreated during setup)
+.venv/
+**/.venv/
+
+# Python caches
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store
+
+# Skill intermediates — regenerable extraction artifacts (keep summary.md / summary.html)
+Summaries/**/_work/

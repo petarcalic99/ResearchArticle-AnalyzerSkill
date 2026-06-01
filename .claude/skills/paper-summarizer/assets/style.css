@@ -1,0 +1,162 @@
+/* paper-summarizer — academic / clean one-pager.
+   System fonts only (self-contained, offline). Serif body, generous
+   whitespace, a single muted accent used sparingly. */
+
+:root{
+  --accent:#38618c;
+  --accent-soft:#e8eef5;
+  --ink:#1f2328;
+  --muted:#5b6470;
+  --bg:#ffffff;
+  --surface:#f6f8fa;
+  --rule:#e3e6ea;
+  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+*{ box-sizing:border-box; }
+html{ -webkit-text-size-adjust:100%; }
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--serif);
+  font-size:17px;
+  line-height:1.62;
+}
+main.page{
+  max-width:720px;
+  margin:2.6rem auto 4rem;
+  padding:0 1.4rem;
+}
+
+/* Title + standfirst summary */
+h1{
+  font-size:1.95rem;
+  line-height:1.2;
+  font-weight:700;
+  letter-spacing:-0.01em;
+  margin:0 0 1rem;
+  padding-bottom:.5rem;
+  border-bottom:2px solid var(--accent);
+}
+.lead{
+  font-style:italic;
+  font-size:1.18rem;
+  line-height:1.5;
+  color:var(--muted);
+  margin:1rem 0 1.9rem;
+}
+.lead strong{
+  font-style:normal;
+  font-variant:small-caps;
+  letter-spacing:.03em;
+  font-weight:600;
+  color:var(--accent);
+}
+
+/* Section headers */
+h2{
+  font-size:1.28rem;
+  font-weight:700;
+  line-height:1.25;
+  margin:2rem 0 .7rem;
+  padding-left:.6rem;
+  border-left:3px solid var(--accent);
+}
+
+p{ margin:0 0 1rem; }
+
+/* Lists */
+ul,ol{ margin:0 0 1.1rem; padding-left:1.3rem; }
+li{ margin:.35rem 0; }
+li::marker{ color:var(--accent); }
+
+/* Key findings & results — callout box */
+ul.key-points{
+  list-style:none;
+  margin:.4rem 0 1.2rem;
+  padding:1rem 1.2rem 1rem 1.9rem;
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:10px;
+}
+ul.key-points li{ position:relative; margin:.55rem 0; }
+ul.key-points li::before{
+  content:"";
+  position:absolute;
+  left:-1.05rem; top:.62em;
+  width:.5rem; height:.5rem;
+  background:var(--accent);
+  border-radius:50%;
+}
+
+/* About the authors — byline card */
+aside.author-card{
+  margin:2.3rem 0 0;
+  padding:1rem 1.2rem;
+  background:var(--surface);
+  border-left:4px solid var(--accent);
+  border-radius:0 10px 10px 0;
+  font-size:.97rem;
+  color:var(--muted);
+}
+aside.author-card h2{
+  border:0; margin:0 0 .4rem; padding:0;
+  font-family:var(--sans);
+  font-size:.82rem;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:.09em;
+  color:var(--accent);
+}
+aside.author-card p{ margin:0; }
+
+/* Figures (embedded only in HTML) */
+figure.paper-figure{ margin:1.7rem 0; text-align:center; }
+figure.paper-figure img{
+  max-width:100%; height:auto;
+  background:#fff;
+  border:1px solid var(--rule);
+  border-radius:6px;
+  padding:.3rem;
+}
+figure.paper-figure figcaption{
+  max-width:92%;
+  margin:.55rem auto 0;
+  font-family:var(--sans);
+  font-size:.82rem;
+  line-height:1.4;
+  color:var(--muted);
+}
+
+/* Links, inline code, tables */
+a{ color:var(--accent); text-decoration:none; border-bottom:1px solid var(--accent-soft); }
+a:hover{ border-bottom-color:var(--accent); }
+code{
+  font-family:ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size:.86em;
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:4px;
+  padding:.05em .35em;
+}
+table{ border-collapse:collapse; width:100%; margin:1rem 0; font-size:.92rem; }
+th,td{ border:1px solid var(--rule); padding:.45rem .6rem; text-align:left; }
+thead th{ background:var(--surface); }
+
+/* Optional dark mode (token remap; figures keep a white backing) */
+@media (prefers-color-scheme: dark){
+  :root{
+    --ink:#e6e8eb; --muted:#9aa4b0; --bg:#16191d; --surface:#1f242a;
+    --rule:#2c333b; --accent:#7aa6d6; --accent-soft:#26323f;
+  }
+}
+
+/* Clean print / PDF export */
+@media print{
+  body{ font-size:11pt; }
+  main.page{ max-width:none; margin:0; padding:0; }
+  a{ border:0; color:var(--ink); }
+  ul.key-points, aside.author-card, figure.paper-figure{ break-inside:avoid; }
+}
